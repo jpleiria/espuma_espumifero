@@ -63,8 +63,8 @@
                     <i data-lucide="droplets" class="text-white w-5 h-5"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">Calc. Espuma</h1>
-                    <p class="text-xs text-slate-400">Z2 / Z4 Operacional</p>
+                    <h1 class="font-bold text-lg leading-tight">Cálculo de Espuma/Espumífero</h1>
+                    <p class="text-xs text-slate-400">Companhia Bombeiros Sapadores Leiria</p>
                 </div>
             </div>
             <button onclick="reset()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-slate-300">
@@ -83,7 +83,7 @@
             
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Área ($m^2$)</label>
+                    <label class="block text-xs text-slate-400 mb-1">Área (m2)</label>
                     <input type="number" id="area" placeholder="0" class="input-dark w-full p-3 rounded-lg text-xl font-bold text-center" oninput="calculate()">
                 </div>
                 <div>
@@ -91,7 +91,7 @@
                     <input type="number" id="height" placeholder="0.5" step="0.1" value="0.5" class="input-dark w-full p-3 rounded-lg text-xl font-bold text-center" oninput="calculate()">
                 </div>
             </div>
-            <p class="text-xs text-slate-500 italic text-center">Ex: Altura 0.1m (10cm) para derrame, 1.0m para inundação.</p>
+            <p class="text-xs text-slate-500 italic text-center">Ex: Altura 0.1m (10cm) para derrame, 3m para inundação.</p>
         </section>
 
         <!-- 2. Tipo de Equipamento (Caudal) -->
@@ -173,9 +173,9 @@
         </section>
         
         <div class="text-center text-[10px] text-slate-600 mt-4 px-4">
-            Cálculo Teórico: Vol.Espuma = Área × Altura. <br>
-            Considera expansões ideais (Baixa=10, Média=75, Alta=500). <br>
-            Em situação real, aplicar Coeficiente de Segurança.
+            SC2ª João Paulo Pereira <br>
+            Companhia Bombeiros Sapadores Leiria <br>
+            - Versão 1.2 -
         </div>
 
     </main>
@@ -254,7 +254,7 @@
             const concentrateVol = solutionVol * (percentage / 100);
             const waterVol = solutionVol - concentrateVol;
 
-            // 5. Bidões (Estimativa 25L) e Veículos (Estimativa 3000L VFCI)
+            // 5. Bidões (Estimativa 25L) e Veículos (Estimativa 3000L VUCI)
             const numBisoes = Math.ceil(concentrateVol / 25);
             const numVeiculos = (waterVol / 3000).toFixed(1);
 
@@ -263,7 +263,7 @@
             elConc.innerText = Math.ceil(concentrateVol) + " L";
             elWater.innerText = Math.ceil(waterVol) + " L";
             elBisoes.innerText = `(~${numBisoes} Bidões de 25L)`;
-            elVeiculos.innerText = `(aprox ${numVeiculos} VFCIs)`;
+            elVeiculos.innerText = `(aprox ${numVeiculos} VUCIs)`;
         }
 
         function reset() {
