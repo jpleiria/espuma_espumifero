@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cálculo Espuma Z2/Z4</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Font: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+            touch-action: manipulation;
+        }
+        
+        /* Custom Button Styles for Active States */
+        .btn-option {
+            transition: all 0.2s;
+            border: 1px solid #334155;
+        }
+        .btn-option.active {
+            background-color: #3b82f6; /* Blue 500 */
+            border-color: #60a5fa;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* Z2/Z4 specific colors */
+        .btn-flow.active {
+            background-color: #ef4444; /* Red 500 */
+            border-color: #f87171;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .input-dark {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: white;
+        }
+        .input-dark:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="pb-12">
+
+    <!-- Header -->
+    <header class="bg-slate-800 p-4 shadow-lg border-b border-slate-700 sticky top-0 z-50">
+        <div class="flex items-center justify-between max-w-md mx-auto">
+            <div class="flex items-center gap-2">
+                <div class="bg-blue-600 p-2 rounded-lg">
+                    <i data-lucide="droplets" class="text-white w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Calc. Espuma</h1>
+                    <p class="text-xs text-slate-400">Z2 / Z4 Operacional</p>
+                </div>
+            </div>
+            <button onclick="reset()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-slate-300">
+                Limpar
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 space-y-6">
+
+        <!-- 1. Dimensões do Incêndio/Dique -->
+        <section class="space-y-3">
+            <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
+                <i data-lucide="ruler" class="w-4 h-4"></i> Dimensões
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Área ($m^2$)</label>
+                    <input type="number" id="area" placeholder="0" class="input-dark w-full p-3 rounded-lg text-xl font-bold text-center" oninput="calculate()">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Altura Espuma (m)</label>
+                    <input type="number" id="height" placeholder="0.5" step="0.1" value="0.5" class="input-dark w-full p-3 rounded-lg text-xl font-bold text-center" oninput="calculate()">
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 italic text-center">Ex: Altura 0.1m (10cm) para derrame, 1.0m para inundação.</p>
+        </section>
+
+        <!-- 2. Tipo de Equipamento (Caudal) -->
+        <section class="space-y-3">
+            <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
+                <i data-lucide="haze" class="w-4 h-4"></i> Equipamento (Caudal)
+            </h2>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="setFlow(200, 'z2')" id="btn-z2" class="btn-flow btn-option bg-slate-800 p-4 rounded-lg flex flex-col items-center justify-center gap-1 active">
+                    <span class="text-2xl font-black">Z2</span>
+                    <span class="text-xs opacity-70">200 L/min</span>
+                </button>
+                <button onclick="setFlow(400, 'z4')" id="btn-z4" class="btn-flow btn-option bg-slate-800 p-4 rounded-lg flex flex-col items-center justify-center gap-1">
+                    <span class="text-2xl font-black">Z4</span>
+                    <span class="text-xs opacity-70">400 L/min</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. Expansão -->
+        <section class="space-y-3">
+            <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
+                <i data-lucide="maximize" class="w-4 h-4"></i> Expansão
+            </h2>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="setExpansion(10, 'low')" id="btn-low" class="btn-exp btn-option bg-slate-800 py-3 rounded-lg text-sm font-bold active">
+                    Baixa<br><span class="text-xs font-normal opacity-60">1:10</span>
+                </button>
+                <button onclick="setExpansion(75, 'med')" id="btn-med" class="btn-exp btn-option bg-slate-800 py-3 rounded-lg text-sm font-bold">
+                    Média<br><span class="text-xs font-normal opacity-60">1:75</span>
+                </button>
+                <button onclick="setExpansion(500, 'high')" id="btn-high" class="btn-exp btn-option bg-slate-800 py-3 rounded-lg text-sm font-bold">
+                    Alta<br><span class="text-xs font-normal opacity-60">1:500</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. Percentagem -->
+        <section class="space-y-3">
+            <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
+                <i data-lucide="flask-conical" class="w-4 h-4"></i> Dosagem (%)
+            </h2>
+            <div class="grid grid-cols-5 gap-2">
+                <button onclick="setPercent(2)" id="btn-p2" class="btn-perc btn-option bg-slate-800 py-2 rounded-lg font-bold">2%</button>
+                <button onclick="setPercent(3)" id="btn-p3" class="btn-perc btn-option bg-slate-800 py-2 rounded-lg font-bold active">3%</button>
+                <button onclick="setPercent(4)" id="btn-p4" class="btn-perc btn-option bg-slate-800 py-2 rounded-lg font-bold">4%</button>
+                <button onclick="setPercent(5)" id="btn-p5" class="btn-perc btn-option bg-slate-800 py-2 rounded-lg font-bold">5%</button>
+                <button onclick="setPercent(6)" id="btn-p6" class="btn-perc btn-option bg-slate-800 py-2 rounded-lg font-bold">6%</button>
+            </div>
+        </section>
+
+        <!-- RESULTADOS -->
+        <section class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl mt-6">
+            <div class="bg-slate-900/50 p-2 text-center border-b border-slate-700">
+                <span class="text-xs font-bold uppercase text-slate-400 tracking-widest">Resultado Operacional</span>
+            </div>
+            
+            <div class="p-6 text-center space-y-2">
+                <div class="flex items-center justify-center gap-2 mb-1">
+                    <i data-lucide="timer" class="text-blue-500 w-6 h-6"></i>
+                    <span class="text-slate-300 font-medium">Tempo Estimado</span>
+                </div>
+                <div class="text-5xl font-black text-white tracking-tighter" id="result-time">00:00</div>
+                <div class="text-sm text-slate-400">minutos : segundos</div>
+            </div>
+
+            <div class="grid grid-cols-2 border-t border-slate-700 divide-x divide-slate-700 bg-slate-800">
+                <div class="p-4 text-center">
+                    <p class="text-xs text-slate-400 uppercase mb-1">Espumífero Nec.</p>
+                    <p class="text-2xl font-bold text-yellow-400" id="result-concentrate">0 L</p>
+                    <p class="text-[10px] text-slate-500 mt-1" id="result-bisoes">(0 Bidões)</p>
+                </div>
+                <div class="p-4 text-center">
+                    <p class="text-xs text-slate-400 uppercase mb-1">Água Necessária</p>
+                    <p class="text-2xl font-bold text-blue-400" id="result-water">0 L</p>
+                    <p class="text-[10px] text-slate-500 mt-1" id="result-veiculos">(~0 Veículos)</p>
+                </div>
+            </div>
+        </section>
+        
+        <div class="text-center text-[10px] text-slate-600 mt-4 px-4">
+            Cálculo Teórico: Vol.Espuma = Área × Altura. <br>
+            Considera expansões ideais (Baixa=10, Média=75, Alta=500). <br>
+            Em situação real, aplicar Coeficiente de Segurança.
+        </div>
+
+    </main>
+
+    <script>
+        // Inicializar ícones
+        lucide.createIcons();
+
+        // Estado inicial
+        let flowRate = 200; // L/min (Z2)
+        let expansionRatio = 10; // Baixa
+        let percentage = 3; // %
+
+        // Referências DOM
+        const elArea = document.getElementById('area');
+        const elHeight = document.getElementById('height');
+        const elTime = document.getElementById('result-time');
+        const elConc = document.getElementById('result-concentrate');
+        const elWater = document.getElementById('result-water');
+        const elBisoes = document.getElementById('result-bisoes');
+        const elVeiculos = document.getElementById('result-veiculos');
+
+        function setFlow(rate, idName) {
+            flowRate = rate;
+            updateActiveState('.btn-flow', `btn-${idName}`);
+            calculate();
+        }
+
+        function setExpansion(ratio, idName) {
+            expansionRatio = ratio;
+            updateActiveState('.btn-exp', `btn-${idName}`);
+            calculate();
+        }
+
+        function setPercent(pct) {
+            percentage = pct;
+            updateActiveState('.btn-perc', `btn-p${pct}`);
+            calculate();
+        }
+
+        function updateActiveState(selector, activeId) {
+            document.querySelectorAll(selector).forEach(el => el.classList.remove('active'));
+            document.getElementById(activeId).classList.add('active');
+        }
+
+        function calculate() {
+            const area = parseFloat(elArea.value) || 0;
+            const height = parseFloat(elHeight.value) || 0;
+
+            if (area === 0 || height === 0) {
+                elTime.innerText = "00:00";
+                elConc.innerText = "0 L";
+                elWater.innerText = "0 L";
+                elBisoes.innerText = "(0 Bidões)";
+                elVeiculos.innerText = "(~0 Veículos)";
+                return;
+            }
+
+            // 1. Volume de Espuma Final (m3 -> Litros)
+            // Multiplicamos por 1000 para passar de m3 para Litros
+            const finalFoamVol = area * height * 1000;
+
+            // 2. Volume de Pré-Mistura (Solução) necessário
+            // Se expansão é 10, preciso de 1L de solução para fazer 10L de espuma
+            const solutionVol = finalFoamVol / expansionRatio;
+
+            // 3. Tempo necessário (Solução / Caudal)
+            const timeMinutesDecimal = solutionVol / flowRate;
+            
+            // Converter decimal de minutos para Min:Seg
+            const mins = Math.floor(timeMinutesDecimal);
+            const secs = Math.round((timeMinutesDecimal - mins) * 60);
+            const timeString = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            // 4. Quantidade de Espumífero e Água
+            const concentrateVol = solutionVol * (percentage / 100);
+            const waterVol = solutionVol - concentrateVol;
+
+            // 5. Bidões (Estimativa 25L) e Veículos (Estimativa 3000L VFCI)
+            const numBisoes = Math.ceil(concentrateVol / 25);
+            const numVeiculos = (waterVol / 3000).toFixed(1);
+
+            // Atualizar UI
+            elTime.innerText = timeString;
+            elConc.innerText = Math.ceil(concentrateVol) + " L";
+            elWater.innerText = Math.ceil(waterVol) + " L";
+            elBisoes.innerText = `(~${numBisoes} Bidões de 25L)`;
+            elVeiculos.innerText = `(aprox ${numVeiculos} VFCIs)`;
+        }
+
+        function reset() {
+            elArea.value = '';
+            elHeight.value = '0.5';
+            setFlow(200, 'z2');
+            setExpansion(10, 'low');
+            setPercent(3);
+            calculate();
+        }
+
+        // Run initial
+        calculate();
+
+    </script>
+</body>
+</html>
+
