@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cálculo Espuma -CBSLeiria</title>
+    <title>Cálculo Espuma - CBSLeiria</title>
     <link rel="icon" href="favicon.ico">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Font: Roboto -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 
     <style>
@@ -56,13 +53,11 @@
 </head>
 <body class="pb-12">
 
-    <!-- Header -->
     <header class="bg-slate-800 p-4 shadow-lg border-b border-slate-700 sticky top-0 z-50">
         <div class="flex items-center justify-between max-w-md mx-auto">
-            <div class="flex items-center gap-2">
-                <div class="bg-blue-600 p-2 rounded-lg">
-                    <i data-lucide="droplets" class="text-white w-5 h-5"></i>
-                </div>
+            <div class="flex items-center gap-3">
+                <img src="logo.png" alt="Logo Bombeiros Sapadores Leiria" class="h-12 w-auto object-contain">
+                
                 <div>
                     <h1 class="font-bold text-lg leading-tight">Cálculo de Espuma/Espumífero</h1>
                     <p class="text-xs text-slate-400">Companhia Bombeiros Sapadores Leiria</p>
@@ -76,7 +71,6 @@
 
     <main class="max-w-md mx-auto p-4 space-y-6">
 
-        <!-- 1. Dimensões do Incêndio/Dique -->
         <section class="space-y-3">
             <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
                 <i data-lucide="ruler" class="w-4 h-4"></i> Dimensões
@@ -95,7 +89,6 @@
             <p class="text-xs text-slate-500 italic text-center">Ex: Altura 0.1m (10cm) para derrame, 3m para inundação.</p>
         </section>
 
-        <!-- 2. Tipo de Equipamento (Caudal) -->
         <section class="space-y-3">
             <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
                 <i data-lucide="haze" class="w-4 h-4"></i> Equipamento (Caudal)
@@ -112,7 +105,6 @@
             </div>
         </section>
 
-        <!-- 3. Expansão -->
         <section class="space-y-3">
             <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
                 <i data-lucide="maximize" class="w-4 h-4"></i> Expansão
@@ -130,7 +122,6 @@
             </div>
         </section>
 
-        <!-- 4. Percentagem -->
         <section class="space-y-3">
             <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
                 <i data-lucide="flask-conical" class="w-4 h-4"></i> Dosagem (%)
@@ -144,7 +135,6 @@
             </div>
         </section>
 
-        <!-- RESULTADOS -->
         <section class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl mt-6">
             <div class="bg-slate-900/50 p-2 text-center border-b border-slate-700">
                 <span class="text-xs font-bold uppercase text-slate-400 tracking-widest">Resultado Operacional</span>
@@ -282,4 +272,3 @@
     </script>
 </body>
 </html>
-
