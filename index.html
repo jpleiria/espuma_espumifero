@@ -49,6 +49,14 @@
             outline: none;
             border-color: #3b82f6;
         }
+
+        .app-panel { display: none; }
+        .app-panel.active { display: block; }
+        .app-tab.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #60a5fa;
+        }
     </style>
 </head>
 <body class="pb-12">
@@ -59,11 +67,11 @@
                 <img src="logo.png" alt="Logo Bombeiros Sapadores Leiria" class="h-12 w-auto object-contain">
                 
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">Cálculo de Espuma/Espumífero</h1>
+                    <h1 class="font-bold text-lg leading-tight">Calculadoras Operacionais</h1>
                     <p class="text-xs text-slate-400">Companhia Bombeiros Sapadores Leiria</p>
                 </div>
             </div>
-            <button onclick="reset()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-slate-300">
+            <button onclick="resetCurrentApp()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-slate-300">
                 Limpar
             </button>
         </div>
@@ -71,6 +79,16 @@
 
     <main class="max-w-md mx-auto p-4 space-y-6">
 
+        <nav class="grid grid-cols-2 gap-2 rounded-xl bg-slate-800 p-1 border border-slate-700" aria-label="Calculadoras">
+            <button onclick="switchApp('foam')" id="tab-foam" class="app-tab active rounded-lg px-3 py-3 text-sm font-bold text-slate-300 border border-transparent">
+                <i data-lucide="flask-conical" class="inline w-4 h-4 mr-1"></i> Espuma
+            </button>
+            <button onclick="switchApp('water')" id="tab-water" class="app-tab rounded-lg px-3 py-3 text-sm font-bold text-slate-300 border border-transparent">
+                <i data-lucide="droplets" class="inline w-4 h-4 mr-1"></i> Caudal de Água
+            </button>
+        </nav>
+
+        <div id="app-foam" class="app-panel active space-y-6">
         <section class="space-y-3">
             <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
                 <i data-lucide="ruler" class="w-4 h-4"></i> Dimensões
@@ -168,6 +186,52 @@
             Companhia Bombeiros Sapadores Leiria <br>
             - Versão 1.2 -
         </div>
+        </div>
+
+        <div id="app-water" class="app-panel space-y-6">
+            <section class="space-y-3">
+                <h2 class="text-sm uppercase tracking-wider text-slate-400 font-bold flex items-center gap-2">
+                    <i data-lucide="ruler" class="w-4 h-4"></i> Dimensões do edifício
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1" for="water-length">Comprimento (m)</label>
+                        <input type="number" id="water-length" min="0" step="0.1" inputmode="decimal" placeholder="0" class="input-dark w-full p-3 rounded-lg text-xl font-bold text-center" oninput="calculateWaterFlow()">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1" for="water-width">Largura (m)</label>
+                        <input type="number" id="water-width" min="0" step="0.1" inputmode="decimal" placeholder="0" class="input-dark w-full p-3 rounded-lg text-xl font-bold text-center" oninput="calculateWaterFlow()">
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
+                <div class="bg-slate-900/50 p-2 text-center border-b border-slate-700">
+                    <span class="text-xs font-bold uppercase text-slate-400 tracking-widest">Caudal de água necessário</span>
+                </div>
+                <div class="p-6 text-center space-y-3">
+                    <div class="flex items-center justify-center gap-2">
+                        <i data-lucide="droplets" class="text-blue-400 w-6 h-6"></i>
+                        <span class="text-slate-300 font-medium">Resultado operacional</span>
+                    </div>
+                    <div class="text-5xl font-black text-blue-400 tracking-tighter" id="result-water-flow">0 L/min</div>
+                    <p class="text-sm text-slate-400" id="result-water-area">Área: 0 m²</p>
+                </div>
+                <div class="border-t border-slate-700 bg-slate-900/30 p-4 text-center text-xs text-slate-400">
+                    Comprimento × Largura × <strong class="text-white">13,5</strong> = Litros/minuto
+                </div>
+            </section>
+
+            <p class="rounded-lg border border-blue-900/60 bg-blue-950/30 p-4 text-xs leading-relaxed text-slate-300">
+                Se, após 15 a 20 minutos de combate, a intensidade do incêndio se mantiver igual ou superior, o caudal utilizado pode não ser suficiente para um controlo eficaz.
+            </p>
+
+            <div class="text-center text-[10px] text-slate-600 mt-4 px-4">
+                SC2ª João Paulo Pereira <br>
+                Companhia Bombeiros Sapadores Leiria <br>
+                - Versão 1.3 -
+            </div>
+        </div>
 
     </main>
 
@@ -188,6 +252,11 @@
         const elWater = document.getElementById('result-water');
         const elBisoes = document.getElementById('result-bisoes');
         const elVeiculos = document.getElementById('result-veiculos');
+        const elWaterLength = document.getElementById('water-length');
+        const elWaterWidth = document.getElementById('water-width');
+        const elWaterFlow = document.getElementById('result-water-flow');
+        const elWaterArea = document.getElementById('result-water-area');
+        let currentApp = 'foam';
 
         function setFlow(rate, idName) {
             flowRate = rate;
@@ -266,8 +335,38 @@
             calculate();
         }
 
+        function calculateWaterFlow() {
+            const length = parseFloat(elWaterLength.value) || 0;
+            const width = parseFloat(elWaterWidth.value) || 0;
+            const area = length * width;
+            const flow = area * 13.5;
+
+            elWaterFlow.innerText = `${Math.round(flow).toLocaleString('pt-PT')} L/min`;
+            elWaterArea.innerText = `Área: ${area.toLocaleString('pt-PT', { maximumFractionDigits: 2 })} m²`;
+        }
+
+        function resetWaterFlow() {
+            elWaterLength.value = '';
+            elWaterWidth.value = '';
+            calculateWaterFlow();
+        }
+
+        function resetCurrentApp() {
+            if (currentApp === 'foam') reset();
+            else resetWaterFlow();
+        }
+
+        function switchApp(appName) {
+            currentApp = appName;
+            document.querySelectorAll('.app-panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.app-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`app-${appName}`).classList.add('active');
+            document.getElementById(`tab-${appName}`).classList.add('active');
+        }
+
         // Run initial
         calculate();
+        calculateWaterFlow();
 
     </script>
 </body>
